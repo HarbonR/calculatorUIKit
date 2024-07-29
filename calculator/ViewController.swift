@@ -9,121 +9,173 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    var variableAnsver : Double = 0
-    var operation : Int = 0
+    var variableAnswer : String = ""
+    var operation : Character = " "
+    var isPoint : Bool = false
+    var isOperation : Bool = false
     
-    @IBOutlet weak var answer: UILabel!
-    @IBOutlet weak var buttonPlus: UIButton!
+    @IBOutlet weak var answer: UILabel! // Поле ответа
+    @IBOutlet weak var buttonPlus: UIButton! // Кнопка для сложения
     @IBAction func buttonPlusAction(_ sender: Any) {
-        operation = 1
-        buttonPlus.backgroundColor = UIColor.purple
-        buttonMinus.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonMultiply.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonDivide.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
+        operationUpdate(charOperation: "+")
     }
-    @IBOutlet weak var buttonMinus: UIButton!
+    @IBOutlet weak var buttonMinus: UIButton! // Кнопка для вычитания
     @IBAction func buttonMinusAction(_ sender: Any) {
-        operation = 2
-        buttonPlus.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonMinus.backgroundColor = UIColor.purple
-        buttonMultiply.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonDivide.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
+        operationUpdate(charOperation: "-")
     }
-    @IBOutlet weak var buttonMultiply: UIButton!
+    @IBOutlet weak var buttonMultiply: UIButton! // Кнопка для умножения
     @IBAction func buttonMultiplyAction(_ sender: Any) {
-        operation = 3
-        buttonPlus.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonMinus.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonMultiply.backgroundColor = UIColor.purple
-        buttonDivide.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
+        operationUpdate(charOperation: "*")
     }
-    @IBOutlet weak var buttonDivide: UIButton!
+    @IBOutlet weak var buttonDivide: UIButton! // Кнопка для деления
     @IBAction func buttonDivideAction(_ sender: Any) {
-        operation = 4
-        buttonPlus.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonMinus.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonMultiply.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
-        buttonDivide.backgroundColor = UIColor.purple
+        operationUpdate(charOperation: "/")
+    }
+    @IBOutlet weak var buttonClear: UIButton! // Кнрпка для очистки результата
+    @IBAction func buttonClearAction(_ sender: Any) {
+        operationClear()
+        variableAnswer = ""
+        answer.text = "0"
+        isPoint = false
     }
     @IBOutlet weak var buttonOne: UIButton!
     @IBAction func buttonOneAction(_ sender: Any) {
-        performOperation(numButton: 1)
+        answerUpdate(sign: "1")
     }
     @IBOutlet weak var buttonTwo: UIButton!
     @IBAction func buttonTwoAction(_ sender: Any) {
-        performOperation(numButton: 2)
+        answerUpdate(sign: "2")
     }
     @IBOutlet weak var buttonThree: UIButton!
     @IBAction func buttonThreeAction(_ sender: Any) {
-        performOperation(numButton: 3)
+        answerUpdate(sign: "3")
     }
     @IBOutlet weak var buttonFour: UIButton!
     @IBAction func buttonfourAction(_ sender: Any) {
-        performOperation(numButton: 4)
+        answerUpdate(sign: "4")
     }
     @IBOutlet weak var buttonFive: UIButton!
     @IBAction func buttonFiveAction(_ sender: Any) {
-        performOperation(numButton: 5)
+        answerUpdate(sign: "5")
     }
     @IBOutlet weak var buttonSix: UIButton!
     @IBAction func buttonSixAction(_ sender: Any) {
-        performOperation(numButton: 6)
+        answerUpdate(sign: "6")
     }
     @IBOutlet weak var buttonSeven: UIButton!
     @IBAction func buttonSevenAction(_ sender: Any) {
-        performOperation(numButton: 7)
+        answerUpdate(sign: "7")
     }
     @IBOutlet weak var buttonEight: UIButton!
     @IBAction func buttonEightAction(_ sender: Any) {
-        performOperation(numButton: 8)
+        answerUpdate(sign: "8")
     }
     @IBOutlet weak var buttonNine: UIButton!
     @IBAction func buttonNineAction(_ sender: Any) {
-        performOperation(numButton: 9)
+        answerUpdate(sign: "9")
     }
     @IBOutlet weak var buttonZero: UIButton!
     @IBAction func buttonZeroAction(_ sender: Any) {
-        performOperation(numButton: 0)
+        answerUpdate(sign: "0")
     }
+    @IBOutlet weak var buttonPoint: UIButton!
+    
+    @IBAction func buttonPointAction(_ sender: Any) {
+        if !isPoint{
+            if answer.text == "0" || isOperation{
+                answer.text = "0."
+                isOperation = false
+            }
+            else{
+                if let answerString = answer.text{
+                    answer.text = answerString + "."
+                }
+            }
+            isPoint = true
+        }
+    }
+    @IBOutlet weak var buttonAnswer: UIButton! // Кнопка для вывода результата
+    @IBAction func buttonAnswerAction(_ sender: Any) {
+        var varAnswer : Double = 0
+        if let answerString = answer.text, let answerDouble = Double(answerString){
+            if let variableAnswerDouble = Double(variableAnswer) {
+                switch operation {
+                case "+":
+                    varAnswer = variableAnswerDouble + answerDouble
+                case "-":
+                    varAnswer = variableAnswerDouble - answerDouble
+                case "*":
+                    varAnswer = variableAnswerDouble * answerDouble
+                case "/":
+                    if variableAnswerDouble == 0 || answerDouble == 0{
+                        varAnswer = 0
+                    }
+                    else{
+                        varAnswer = variableAnswerDouble / answerDouble
+                    }
+                default:
+                    break
+                }
+            }
+        }
+        if varAnswer.truncatingRemainder(dividingBy: 1) == 0{ // Определяем является ли число целым.
+            answer.text = String(Int(varAnswer))
+            isPoint = false
+        }
+        else{
+            answer.text = String(varAnswer)
+            isPoint = true
+        }
+        operationClear()
+    }
+    
+    func answerUpdate(sign : String){
+        if answer.text == "0" || isOperation{
+            answer.text = ""
+            isOperation = false
+        }
+        if let answerString = answer.text{
+            answer.text = answerString + sign
+        }
+    }
+    
+    func operationClear(){
+        operation = " "
+        isOperation = false
+        buttonPlus.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
+        buttonMinus.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
+        buttonMultiply.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
+        buttonDivide.backgroundColor = UIColor.clear // Отчищаем цвет не активной кнопки
+    }
+    
+    func operationUpdate(charOperation : Character){
+        operationClear()
+        isOperation = true
+        isPoint = false
+        switch charOperation{
+        case "+":
+            operation = "+"
+            buttonPlus.backgroundColor = UIColor.purple
+        case "-":
+            operation = "-"
+            buttonMinus.backgroundColor = UIColor.purple
+        case "*":
+            operation = "*"
+            buttonMultiply.backgroundColor = UIColor.purple
+        case "/":
+            operation = "/"
+            buttonDivide.backgroundColor = UIColor.purple
+        default:
+            break
+        }
+        if let answerString = answer.text{
+            variableAnswer = answerString
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
-    }
-
-    func performOperation(numButton : Double){
-        switch operation{
-        case 1 :
-            answer.text = String(variableAnsver + numButton)
-            variableAnsver = variableAnsver + numButton
-            operation = 0
-            buttonPlus.backgroundColor = UIColor.clear
-        case 2 :
-            answer.text = String(variableAnsver - numButton)
-            variableAnsver = variableAnsver - numButton
-            operation = 0
-            buttonMinus.backgroundColor = UIColor.clear
-        case 3 :
-            answer.text = String(variableAnsver * numButton)
-            variableAnsver = variableAnsver * numButton
-            operation = 0
-            buttonMultiply.backgroundColor = UIColor.clear
-        case 4 :
-            if numButton == 0 || variableAnsver == 0 {
-                answer.text = "0"
-                variableAnsver = 0
-                operation = 0
-                buttonDivide.backgroundColor = UIColor.clear
-            }
-            else{
-                answer.text = String(variableAnsver / numButton)
-                variableAnsver = variableAnsver / numButton
-                operation = 0
-                buttonDivide.backgroundColor = UIColor.clear
-            }
-        default :
-            answer.text = String(numButton)
-            variableAnsver = numButton
-        }
     }
 }
 
